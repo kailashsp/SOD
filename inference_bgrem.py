@@ -10,13 +10,8 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from PIL import Image as Img
 import skimage
 
-import onnx
 
-# from onnx_tf.backend import prepare
 
-# onnx_model = onnx.load("cloth_segm.onnx")  # load onnx model
-# tf_rep = prepare(onnx_model)  # prepare tf representation
-# tf_rep.export_graph("cloth_segmentation.pb")  # export the model
 
 model = tf.keras.models.load_model('u2net_keras.h5')
 
@@ -129,12 +124,14 @@ def back_rem(output):
     out_img[out_img <= THRESHOLD] = 0
     shape = out_img.shape
     print(shape)
-
+    print('+++++++++++++++++++++++++++++++')
     a_layer_init = np.ones(shape = (shape[0],shape[1],1))
     mul_layer = np.expand_dims(out_img[:,:,0],axis=2)
     a_layer = mul_layer*a_layer_init
     rgba_out = np.append(out_img,a_layer,axis=2)
-
+    tf.keras.utils.save_img("rgbaout.png",rgba_out)
+   
+    print(rgba_out.shape)
     input = load_img(i_image)
     inp_img = img_to_array(input)
     # inp_img= cv.resize(inp_img, (320, 320))
@@ -144,8 +141,12 @@ def back_rem(output):
 
     a_layer = np.ones(shape = (shape[0],shape[1],1))
     rgba_inp = np.append(inp_img,a_layer,axis=2)
+    tf.keras.utils.save_img("rgbinp.png",rgba_inp)
 
+    print(rgba_inp.shape)
     rem_back = (rgba_inp*rgba_out)
+    print(rem_back.shape)
+    print("+++++++++++++++++++++++++")
     # rem_back = cv.resize(rem_back,(w,h))
 
     # blur = cv.GaussianBlur(rem_back,(5,5), sigmaX=0, sigmaY=0) 
